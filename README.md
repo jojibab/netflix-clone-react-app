@@ -93,3 +93,93 @@ docker run --name netflix-clone-website --rm -d -p 80:80 netflix-clone
 - Replace bundler([Vite](https://vitejs.dev/guide)) with [Turbopack](https://turbo.build/pack/docs/why-turbopack). Turbopack is introduced in Next.js conf recently. It's very fast but it's nor ready to use right now. it just support Next.js, and they plan to support all others as soon as possible. so if it's ready to use, replace [Vite](https://vitejs.dev/guide) with [Turbopack](https://turbo.build/pack/docs/why-turbopack).
 - Add accessibilities for better UX.
 - Add Tests.
+
+
+
+
+
+
+
+
+# HOW TO RUN THIS PROJECT
+Hands-on DevOps Project-04 Netflix application
+
+![Alt text](./public/images/image-11.png)
+# Hello everyone I am back with another Project of DevOps😉
+
+Project Overview:
+
+Our project centers around creating a Netflix clone web application and deploying it on a Kubernetes cluster. We will containerize the web application and its dependencies using Docker images. These Docker images will enable us to encapsulate the application and ensure consistent behavior across various environments.
+
+In the fast-paced world of technology, containerization has revolutionized the way applications are developed, deployed, and managed. One of the most popular container orchestration platforms is Kubernetes, known for its ability to effortlessly handle containerized applications at scale.
+
+Understanding Kubernetes:
+
+Kubernetes, often abbreviated as K8s, is an open-source container orchestration platform that automates the deployment, scaling, and management of containerized applications.
+
+It abstracts the underlying infrastructure and provides a unified API to manage clusters of containers effectively. With Kubernetes, developers can focus on building applications without worrying about the complexities of deployment and scaling.
+
+Let’s start…
+
+![let's start](./public/images/image-10.png)
+
+# Step 01:- Basic Requirement
+  * Go to AWS console and provision one Instance.
+  * Netflix-Project — (AMI- Ubuntu 22.04, Type- t2.medium)
+  ![UBUTNU AMI](./public/images/image.png)
+
+  * Install updates. (sudo apt-get update)
+  * Install Docker. [Installation steps Click Here](https://docs.docker.com/engine/install/ubuntu/)
+  * Give permission to Docker (sudo usermod -aG docker $USER && newgrp docker)
+  * Minikube and Kubectl installation [Click Here for installation](https://www.linuxtechi.com/how-to-install-minikube-on-ubuntu/)
+  ![ALL VERSIONS](./public/images/image-1.png)
+
+# Step:02- Push Docker image to Docker-Hub
+  * Get Netflix app code from GitHub and clone in the EC2 instance. [Click Here for repository link](https://github.com/SaurabhDahibhate/netflix-clone-react-app)
+  ![CLONE REPO](./public/images/image-2.png)
+  * Make sure you have already written the docker file.
+  * Docker file for Netflix-app
+  ```Dockerfile
+  FROM node:16.17.0-alpine as builder
+  WORKDIR /app
+  COPY ./package.json .
+  COPY ./yarn.lock .
+  RUN yarn install
+  COPY . .
+  ARG TMDB_V3_API_KEY
+  ENV VITE_APP_TMDB_V3_API_KEY=${TMDB_V3_API_KEY}
+  ENV VITE_APP_API_ENDPOINT_URL="https://api.themoviedb.org/3"
+  RUN yarn build
+
+  FROM nginx:stable-alpine
+  WORKDIR /usr/share/nginx/html
+  RUN rm -rf ./*
+  COPY --from=builder /app/dist .
+  EXPOSE 80
+  ENTRYPOINT ["nginx", "-g", "daemon off;"]
+  ```
+
+  ```bash
+  docker image build -t netflix-clone .
+  ```
+  * Create an image out of docker file and create and run the container out of it.
+  ![docker image](./public/images/image-3.png)
+
+  * Create docker hub account if you don’t have. Make repository on docker-hub
+  ![docker login](./public/images/image-4.png)
+
+# Step:03 — Create Deployment and Service.yaml files for Deployments
+  * Now, create the deployment yaml file.
+  ![deployment](./public/images/image-5.png)
+
+  * Run and check the successful running of deployment in the instance.
+  ![apply ](./public/images/image-6.png)
+
+  * Create a service.yaml file to connect the node port and access the url from the outside world.
+  ![service](./public/images/image-7.png)
+
+  * Get the URL and curl it to check the website accessibility.
+  ![minikube ](./public/images/image-8.png)
+
+  * Check with Public URL and we can now see the Netflix APP running on the server.
+  ![Netflix-clone](./public/images/image-9.png)
